@@ -11,10 +11,12 @@ import {
 } from "react-native";
 
 import db from "../db.js";
+import firebase from "firebase/app";
+import "firebase/auth";
 
 export default function HomeScreen() {
   const [messages, setMessages] = useState([]);
-  const [from, setFrom] = useState("");
+  //const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [text, setText] = useState("");
   const [id, setId] = useState("");
@@ -25,7 +27,7 @@ export default function HomeScreen() {
       querySnapshot.forEach(doc => {
         messages.push({ id: doc.id, ...doc.data() });
       });
-      console.log("  Current messages: ", messages);
+      //console.log("  Current messages: ", messages);
       setMessages([...messages]);
     });
   }, []);
@@ -38,7 +40,6 @@ export default function HomeScreen() {
   };
 
   const clearAll = () => {
-    setFrom("");
     setTo("");
     setText("");
     setId("");
@@ -46,18 +47,21 @@ export default function HomeScreen() {
 
   handleSend = () => {
     if (!id) {
-      db.collection("messages").add({ from, to, text });
+      db.collection("messages").add({
+        from: firebase.auth().currentUser.uid,
+        to,
+        text
+      });
     } else {
       db.collection("messages")
         .doc(id)
-        .update({ from, to, text });
-      clearAll();
+        .update({ from: firebase.auth().currentUser.uid, to, text });
     }
+    clearAll();
   };
 
   handleEdit = message => {
     setId(message.id);
-    setFrom(message.from);
     setTo(message.to);
     setText(message.text);
   };
@@ -71,18 +75,20 @@ export default function HomeScreen() {
       >
         {messages.map((message, i) => (
           <View key={i} style={styles.getStartedText}>
-            <Text>{message.text}</Text>
+            <Text>From: {message.from}</Text>
+            <Text>To: {message.to}</Text>
+            <Text>Message: {message.text}</Text>
             <Button title="EDIT" onPress={() => handleEdit(message)} />
             <Button title="DELETE" onPress={() => handleDelete(message)} />
           </View>
         ))}
       </ScrollView>
-      <TextInput
+      {/* <TextInput
         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
         onChangeText={text => setFrom(text)}
         value={from}
         placeholder="From"
-      />
+      /> */}
       <TextInput
         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
         onChangeText={text => setTo(text)}
@@ -142,7 +148,8 @@ function handleHelpPress() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
+    marginTop: 10
     // justifyContent:"center",
     // alignItems: "center"
   },
