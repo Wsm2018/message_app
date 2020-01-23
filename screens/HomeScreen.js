@@ -9,7 +9,7 @@ import {
   View,
   Button
 } from "react-native";
-
+import Message from "./Message";
 import db from "../db.js";
 import firebase from "firebase/app";
 import "firebase/auth";
@@ -32,12 +32,12 @@ export default function HomeScreen() {
     });
   }, []);
 
-  handleDelete = message => {
-    db.collection("messages")
-      .doc(message.id)
-      .delete();
-    //console.log(message);
-  };
+  // const handleDelete = message => {
+  //   db.collection("messages")
+  //     .doc(message.id)
+  //     .delete();
+  //   //console.log(message);
+  // };
 
   const clearAll = () => {
     setTo("");
@@ -45,7 +45,7 @@ export default function HomeScreen() {
     setId("");
   };
 
-  handleSend = () => {
+  const handleSend = () => {
     if (!id) {
       db.collection("messages").add({
         from: firebase.auth().currentUser.uid,
@@ -60,10 +60,14 @@ export default function HomeScreen() {
     clearAll();
   };
 
-  handleEdit = message => {
+  const handleEdit = message => {
     setId(message.id);
     setTo(message.to);
     setText(message.text);
+  };
+
+  const logout = () => {
+    firebase.auth().signOut();
   };
 
   return (
@@ -73,14 +77,15 @@ export default function HomeScreen() {
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="always"
       >
+        <Button title="SIGN OUT" onPress={logout} />
+
         {messages.map((message, i) => (
-          <View key={i} style={styles.getStartedText}>
-            <Text>From: {message.from}</Text>
-            <Text>To: {message.to}</Text>
-            <Text>Message: {message.text}</Text>
-            <Button title="EDIT" onPress={() => handleEdit(message)} />
-            <Button title="DELETE" onPress={() => handleDelete(message)} />
-          </View>
+          <Message
+            message={message}
+            key={i}
+            handleEdit={() => handleEdit(message)}
+            //handleDelete={handleDelete}
+          />
         ))}
       </ScrollView>
       {/* <TextInput

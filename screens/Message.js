@@ -1,62 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TextInput, Button } from "react-native";
-// import { ExpoConfigView } from "@expo/samples";
+import { View, Button, Text, StyleSheet } from "react-native";
+import db from "../db.js";
 import firebase from "firebase/app";
 import "firebase/auth";
-import db from "../db";
+import "firebase/database";
 
-export default function SettingsScreen() {
-  const [displayName, setDisplayName] = useState("");
-  const [photoURL, setPhotoURL] = useState("");
+export default ({ message, handleEdit }) => {
+  const [from, setFrom] = useState(null);
+  //console.log(message.from);
 
-  const handleSet = async() => {
-    const user = await db.collection("users").doc(firebase.auth().currentUser.uid).get()
-    console.log("helllll;lofnvdfmvoid",user)
-  }
+  const handleSet = async () => {
+    const user = await db
+      .collection("users")
+      .doc(message.from)
+      .get(snapShot => {
+        console.log("helllll;lofnvdfmvoid", snapShot.data());
+      });
+    
+  };
 
   useEffect(() => {
-    // setDisplayName(firebase.auth().currentUser.displayName);
-    // setPhotoURL(firebase.auth().currentUser.photoURL);
-    handleSet()
+    handleSet();
   }, []);
 
-  const handleSave = () => {
-    // await firebase
-    //   .auth()
-    //   .currentUser.updateProfile({ displayName: displayName, photoURL: photoURL });
-
-    db.collection("users")
-      .doc(firebase.auth().currentUser.uid)
-      .update({
-        displayName,
-        photoURL
-      });
+  const handleDelete = message => {
+    db.collection("messages")
+      .doc(message.id)
+      .delete();
+    //console.log(message);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={{ fontSize: 20 }}>Display Name</Text>
-      <TextInput
-        style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-        onChangeText={name => setDisplayName(name)}
-        value={displayName}
-        placeholder="Display Name"
-      />
-      <Text style={{ fontSize: 20 }}>Photo URL</Text>
-      <TextInput
-        style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-        onChangeText={pic => setPhotoURL(pic)}
-        value={photoURL}
-        placeholder="Display Name"
-      />
-
-      <Button title="Save" onPress={handleSave} />
+    <View style={styles.getStartedText}>
+      <Text>From: {message.from}</Text>
+      <Text>To: {message.to}</Text>
+      <Text>Message: {message.text}</Text>
+      <Button title="EDIT" onPress={handleEdit} />
+      <Button title="DELETE" onPress={() => handleDelete(message)} />
     </View>
   );
-}
-
-SettingsScreen.navigationOptions = {
-  title: "Settings"
 };
 
 const styles = StyleSheet.create({
