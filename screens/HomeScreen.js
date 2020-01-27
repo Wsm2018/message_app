@@ -7,7 +7,8 @@ import {
   Text,
   TextInput,
   View,
-  Button
+  Button,
+  Image
 } from "react-native";
 import Message from "./Message";
 import db from "../db.js";

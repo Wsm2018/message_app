@@ -1,24 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TextInput, Button } from "react-native";
+import { StyleSheet, View, Text, TextInput, Button, Image } from "react-native";
 // import { ExpoConfigView } from "@expo/samples";
 import firebase from "firebase/app";
 import "firebase/auth";
 import db from "../db";
+import * as Permissions from "expo-permissions";
+import * as ImagePicker from "expo-image-picker";
 
 export default function SettingsScreen() {
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
+  const [permissions, setPermission] = useState(false);
 
-  const handleSet = async() => {
-    const user = await db.collection("users").doc(firebase.auth().currentUser.uid).get()
-    console.log("helllll;lofnvdfmvoid",user)
-  }
+  const permission = async () => {
+    const permission = await ImagePicker.requestCameraRollPermissionsAsync();
+    setPermission(permission === "granted");
+  };
+
+  const handleSet = async () => {
+    const user = await db
+      .collection("users")
+      .doc(firebase.auth().currentUser.uid)
+      .get();
+    const data = user.data();
+    setDisplayName(data.displayName);
+    setPhotoURL(data.photoURL);
+    //console.log("helllll;lofnvdfmvoid", user);
+  };
 
   useEffect(() => {
     // setDisplayName(firebase.auth().currentUser.displayName);
     // setPhotoURL(firebase.auth().currentUser.photoURL);
-    handleSet()
+    handleSet();
   }, []);
+
+  const handlePickImage = async () => {
+    //show camera roll, allow user to select, set photoURL
+    //use firebase sotrage
+    //upload selected image to default bucket naming with uid
+    //get url and set photos
+  };
 
   const handleSave = () => {
     // await firebase
@@ -27,14 +48,18 @@ export default function SettingsScreen() {
 
     db.collection("users")
       .doc(firebase.auth().currentUser.uid)
-      .update({
+      .set({
         displayName,
         photoURL
       });
+    handleSet();
   };
 
   return (
     <View style={styles.container}>
+      {photoURL !== "" && (
+        <Image source={{ uri: photoURL }} style={{ height: 100, width: 100 }} />
+      )}
       <Text style={{ fontSize: 20 }}>Display Name</Text>
       <TextInput
         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
@@ -47,10 +72,12 @@ export default function SettingsScreen() {
         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
         onChangeText={pic => setPhotoURL(pic)}
         value={photoURL}
-        placeholder="Display Name"
+        placeholder="Image"
       />
 
       <Button title="Save" onPress={handleSave} />
+
+      <Button title="Pick Image" onPress={handlePickImage} />
     </View>
   );
 }

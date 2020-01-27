@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { View, Button, Text, StyleSheet } from "react-native";
+import { View, Button, Text, StyleSheet, Image } from "react-native";
 import db from "../db.js";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
 
 export default ({ message, handleEdit }) => {
-  const [from, setFrom] = useState(null);
+  const [user, setUser] = useState(null);
   //console.log(message.from);
 
-  const handleSet = async () => {
+  const handleUser = async () => {
     const user = await db
       .collection("users")
       .doc(message.from)
-      .get(snapShot => {
-        console.log("helllll;lofnvdfmvoid", snapShot.data());
-      });
-    
+      .get();
+    console.log("user from messages", user.data());
+    setUser(user.data());
   };
 
   useEffect(() => {
-    handleSet();
+    handleUser();
   }, []);
 
   const handleDelete = message => {
@@ -31,13 +30,23 @@ export default ({ message, handleEdit }) => {
   };
 
   return (
-    <View style={styles.getStartedText}>
-      <Text>From: {message.from}</Text>
-      <Text>To: {message.to}</Text>
-      <Text>Message: {message.text}</Text>
-      <Button title="EDIT" onPress={handleEdit} />
-      <Button title="DELETE" onPress={() => handleDelete(message)} />
-    </View>
+    user && (
+      <View style={(styles.getStartedText, { flexDirection: "row", margin: 10 })}>
+        <View>
+          <Image
+            source={{ url: user.photoURL }}
+            style={{ width: 100, height: 100 }}
+          />
+        </View>
+        <View style={{alignItems: "center", margin: 10}}>
+          <Text>From: {user.displayName}</Text>
+          <Text>To: {message.to}</Text>
+          <Text>Message: {message.text}</Text>
+          <Button title="EDIT" onPress={handleEdit} />
+          <Button title="DELETE" onPress={() => handleDelete(message)} />
+        </View>
+      </View>
+    )
   );
 };
 
