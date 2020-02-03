@@ -30,7 +30,7 @@ export default function App(props) {
 
   const handleRegister = async () => {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
-    db.collection("users").add(firebase.auth().currentUser.uid).add({
+    db.collection("users").add(firebase.auth().currentUser.uid).set({
       displayName: email,
       photoURL: "https://clipartart.com/images/default-profile-picture-clipart-3.jpg"
     });

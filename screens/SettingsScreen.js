@@ -6,6 +6,7 @@ import "firebase/auth";
 import "firebase/storage";
 import db from "../db";
 import * as Permissions from "expo-permissions";
+
 import * as ImagePicker from "expo-image-picker";
 
 export default function SettingsScreen() {
@@ -31,8 +32,6 @@ export default function SettingsScreen() {
   };
 
   useEffect(() => {
-    // setDisplayName(firebase.auth().currentUser.displayName);
-    // setPhotoURL(firebase.auth().currentUser.photoURL);
     handleSet();
   }, []);
 

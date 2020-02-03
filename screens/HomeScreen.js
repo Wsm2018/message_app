@@ -8,12 +8,15 @@ import {
   TextInput,
   View,
   Button,
-  Image
+  Image,
+  Dimensions
 } from "react-native";
 import Message from "./Message";
 import db from "../db.js";
 import firebase from "firebase/app";
 import "firebase/auth";
+
+import MapView, { Marker } from "react-native-maps";
 
 export default function HomeScreen() {
   const [messages, setMessages] = useState([]);
@@ -21,6 +24,23 @@ export default function HomeScreen() {
   const [to, setTo] = useState("");
   const [text, setText] = useState("");
   const [id, setId] = useState("");
+  const [region, setRegion] = useState([]);
+
+  const handleUser = () => {
+    db.collection("users").onSnapshot(querySnapshot => {
+      const coordinates = []
+      querySnapshot.forEach(doc => {
+        //coordinates.push()
+        console.log("test", doc.data())
+      })
+    })
+    // console.log("user from messages", user.data());
+    // setUser(user.data());
+  };
+
+  useEffect(() => {
+    handleUser();
+  }, []);
 
   useEffect(() => {
     db.collection("messages").onSnapshot(querySnapshot => {
@@ -32,13 +52,6 @@ export default function HomeScreen() {
       setMessages([...messages]);
     });
   }, []);
-
-  // const handleDelete = message => {
-  //   db.collection("messages")
-  //     .doc(message.id)
-  //     .delete();
-  //   //console.log(message);
-  // };
 
   const clearAll = () => {
     setTo("");
@@ -88,6 +101,20 @@ export default function HomeScreen() {
             //handleDelete={handleDelete}
           />
         ))}
+
+        <MapView
+          style={{
+            width: Dimensions.get("window").width,
+            height: Dimensions.get("window").height
+          }}
+          region={{
+            latitude: 25.3548,
+            longitude: 51.1839
+          }}
+        >
+          {}
+          <Marker coordinate={{}}></Marker>
+        </MapView>
       </ScrollView>
       {/* <TextInput
         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
